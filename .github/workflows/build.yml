@@ -22,6 +22,8 @@ jobs:
       - name: Build Binary with Monotonic Version
         env:
           BUILD_NUMBER: ${{ github.run_number }}
+          GOOS: darwin
+          GOARCH: amd64
         run: |
           go build \
             -ldflags="-s -w -X main.BuildVersion=${BUILD_NUMBER}" \
