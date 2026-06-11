@@ -1,0 +1,46 @@
+name: Build and Publish pethello
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go 1.26
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.26"
+          cache: true
+
+      - name: Build Binary with Monotonic Version
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          go build \
+            -ldflags="-s -w -X main.BuildVersion=${BUILD_NUMBER}" \
+            -o pethello \
+            ./cmd/pethello/... || go build -ldflags="-s -w -X main.BuildVersion=${BUILD_NUMBER}" -o pethello main.go
+
+      # Staging area to organize the binary and any extra configuration/asset files
+      - name: Prepare Distribution Package
+        run: |
+          mkdir -p dist/
+          mv pethello dist/
+          # Example: Copy other files you need to ship alongside the binary
+          # cp config.yaml dist/
+          # cp -r assets/ dist/
+
+      - name: Publish Private Build Archive (Zipped)
+        uses: actions/upload-artifact@v7
+        with:
+          name: pethello-build-${{ github.run_number }}
+          path: ./dist/
+          archive: true # Compresses the target directory contents into a single .zip file
+          if-no-files-found: error
