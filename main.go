@@ -17,7 +17,7 @@ func main() {
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "OK 6")
+		fmt.Fprintf(w, "OK 7")
 	})
 	http.ListenAndServe(fmt.Sprintf(":%d", *port), mux)
 }
